@@ -4,7 +4,7 @@ from airport_api_service import settings
 
 
 class Country(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=255, unique=True)
 
     class Meta:
         ordering = ["name"]
@@ -15,7 +15,11 @@ class Country(models.Model):
 
 class City(models.Model):
     name = models.CharField(max_length=100)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    country = models.ForeignKey(
+        Country,
+        on_delete=models.CASCADE,
+        related_name="cities",
+    )
 
     class Meta:
         ordering = ["name"]
@@ -26,15 +30,27 @@ class City(models.Model):
 
 class Airport(models.Model):
     name = models.CharField(max_length=100)
-    closest_big_city = models.ForeignKey(City, on_delete=models.CASCADE)
+    closest_big_city = models.ForeignKey(
+        City,
+        on_delete=models.CASCADE,
+        related_name="airports",
+    )
 
     def __str__(self):
         return f"{self.name} - {self.closest_big_city}"
 
 
 class Route(models.Model):
-    source = models.ForeignKey(Airport, on_delete=models.CASCADE)
-    destination = models.ForeignKey(Airport, on_delete=models.CASCADE)
+    source = models.ForeignKey(
+        Airport,
+        on_delete=models.CASCADE,
+        related_name="source_routes",
+    )
+    destination = models.ForeignKey(
+        Airport,
+        on_delete=models.CASCADE,
+        related_name="destination_routers"
+    )
     distance = models.IntegerField(default=0)
 
     def __str__(self):
@@ -66,7 +82,11 @@ class Airplane(models.Model):
     name = models.CharField(max_length=100)
     rows = models.IntegerField()
     seats_in_rows = models.IntegerField()
-    airplane_type = models.ForeignKey(AirplaneType, on_delete=models.CASCADE)
+    airplane_type = models.ForeignKey(
+        AirplaneType,
+        on_delete=models.CASCADE,
+        related_name="airplanes",
+    )
 
     class Meta:
         ordering = ["name"]
@@ -80,11 +100,19 @@ class Airplane(models.Model):
 
 
 class Flight(models.Model):
-    route = models.ForeignKey(Route, on_delete=models.CASCADE)
-    airplane = models.ForeignKey(AirplaneType, on_delete=models.CASCADE)
+    route = models.ForeignKey(
+        Route,
+        on_delete=models.CASCADE,
+        related_name="flights",
+    )
+    airplane = models.ForeignKey(
+        AirplaneType,
+        on_delete=models.CASCADE,
+        related_name="flights",
+    )
     departure_time = models.DateTimeField()
     arrival_time = models.DateTimeField()
-    crew = models.ManyToManyField(Crew, on_delete=models.CASCADE)
+    crew = models.ManyToManyField(Crew, related_name="flights")
 
     class Meta:
         ordering = ["-departure_time"]
@@ -99,8 +127,16 @@ class Flight(models.Model):
 class Ticket(models.Model):
     row = models.IntegerField()
     seat = models.IntegerField()
-    flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
-    order = models.ForeignKey("Order", on_delete=models.CASCADE)
+    flight = models.ForeignKey(
+        Flight,
+        on_delete=models.CASCADE,
+        related_name="tickets",
+    )
+    order = models.ForeignKey(
+        "Order",
+        on_delete=models.CASCADE,
+        related_name="tickets",
+    )
 
     class Meta:
         unique_together = ["flight", "row", "seat"]
