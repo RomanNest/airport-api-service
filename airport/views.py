@@ -3,7 +3,11 @@ from rest_framework import viewsets
 from airport.models import (
     Country,
     City,
-    Airport, AirplaneType, Airplane, Crew,
+    Airport,
+    AirplaneType,
+    Airplane,
+    Crew,
+    Order,
 )
 from airport.serializers import (
     CountrySerializer,
@@ -12,6 +16,7 @@ from airport.serializers import (
     AirplaneTypeSerializer,
     AirplaneSerializer,
     CrewSerializer,
+    OrderSerializer,
 )
 
 
@@ -43,3 +48,8 @@ class AirplaneViewSet(viewsets.ModelViewSet):
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
