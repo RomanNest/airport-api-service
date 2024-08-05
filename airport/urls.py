@@ -10,6 +10,7 @@ from airport.views import (
     CrewViewSet,
     OrderViewSet,
     TicketViewSet,
+    FlightViewSet,
 )
 
 app_name = "airport"
@@ -23,6 +24,7 @@ router.register("airplanes", AirplaneViewSet)
 router.register("crews", CrewViewSet)
 router.register("orders", OrderViewSet)
 router.register("tickets", TicketViewSet)
+router.register("flights", FlightViewSet)
 
 
 urlpatterns = [path("", include(router.urls))]
