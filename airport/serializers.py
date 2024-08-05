@@ -43,6 +43,17 @@ class AirportSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "closest_big_city")
 
 
+class AirportListSerializer(AirportSerializer):
+    closest_big_city = serializers.CharField(
+        source="closest_big_city.name",
+        read_only=True
+    )
+
+
+class AirportDetailSerializer(AirportSerializer):
+    closest_big_city = CityDetailSerializer()
+
+
 class AirplaneTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = AirplaneType
