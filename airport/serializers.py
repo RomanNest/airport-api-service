@@ -25,6 +25,18 @@ class CitySerializer(serializers.ModelSerializer):
         fields = ("id", "name", "country")
 
 
+class CityListSerializer(CitySerializer):
+    country = serializers.CharField(source="country.name", read_only=True)
+
+    class Meta:
+        model = City
+        fields = ("id", "name", "country")
+
+
+class CityDetailSerializer(CitySerializer):
+    country = CountrySerializer(read_only=True)
+
+
 class AirportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Airport
