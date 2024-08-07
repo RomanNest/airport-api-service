@@ -32,7 +32,7 @@ from airport.serializers import (
     AirplaneListSerializer,
     AirplaneDetailSerializer,
     FlightListSerializer,
-    FlightDetailSerializer,
+    FlightDetailSerializer, OrderListSerializer,
 )
 
 
@@ -103,8 +103,14 @@ class CrewViewSet(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
+    queryset = Order.objects.all().select_related(
+        "tickets__flight__rout", "tickets__flight__airplane"
+    )
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return OrderListSerializer
+        return OrderSerializer
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
