@@ -106,7 +106,7 @@ class Flight(models.Model):
         related_name="flights",
     )
     airplane = models.ForeignKey(
-        AirplaneType,
+        Airplane,
         on_delete=models.CASCADE,
         related_name="flights",
     )

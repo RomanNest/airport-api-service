@@ -95,12 +95,6 @@ class TicketSerializer(serializers.ModelSerializer):
         fields = ("id", "row", "seat", "flight", "order")
 
 
-class FlightSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Flight
-        fields = ("id", "route", "airplane", "departure_time", "arrival_time")
-
-
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
@@ -135,3 +129,53 @@ class RoutDetailSerializer(RouteSerializer):
     class Meta:
         model = Route
         fields = ("id", "source", "destination", "distance")
+
+
+class FlightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Flight
+        fields = (
+            "id",
+            "route",
+            "airplane",
+            "departure_time",
+            "arrival_time",
+            "crew"
+        )
+
+
+class FlightListSerializer(serializers.ModelSerializer):
+    rout_source = serializers.CharField(
+        source="route.source.name",
+        read_only=True,
+    )
+    rout_destination = serializers.CharField(
+        source="route.destination.name",
+        read_only=True,
+    )
+    airplane = serializers.CharField(
+        source="airplane.name",
+        read_only=True,
+    )
+    departure_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
+    arrival_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
+
+    class Meta:
+        model = Flight
+        fields = (
+            "id",
+            "rout_source",
+            "rout_destination",
+            "airplane",
+            "departure_time",
+            "arrival_time",
+        )
+
+
+class FlightDetailSerializer(FlightSerializer):
+    route = RoutDetailSerializer(many=False, read_only=True)
+    airplane = AirplaneListSerializer(many=False, read_only=True)
+    crew = CrewSerializer(
+        many=True,
+        read_only=True,
+    )
