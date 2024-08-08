@@ -125,7 +125,7 @@ class FlightViewSet(viewsets.ModelViewSet):
         "route__source",
         "route__destination",
         "airplane__airplane_type"
-    )
+    ).prefetch_related("crew")
 
     @staticmethod
     def _params_to_ints(query_string):
