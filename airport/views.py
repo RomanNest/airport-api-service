@@ -105,9 +105,7 @@ class CrewViewSet(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all().select_related(
-        "tickets__flight__rout", "tickets__flight__airplane"
-    )
+    queryset = Order.objects.all()
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -159,13 +157,6 @@ class FlightViewSet(viewsets.ModelViewSet):
                 departure_time__year=departure_date.year,
                 departure_time__month=departure_date.month,
                 departure_time__day=departure_date.day,
-            )
-
-        if self.action == "list":
-            queryset = queryset.annotate(
-                tickets_available=
-                F("airplane__rows") * F("airplane__seats_in_rows")
-                - Count("tickets")
             )
 
         return queryset.distinct()
