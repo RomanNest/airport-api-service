@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.db.models import F, Count
 from rest_framework import viewsets
 
 from airport.models import (
@@ -158,6 +159,13 @@ class FlightViewSet(viewsets.ModelViewSet):
                 departure_time__year=departure_date.year,
                 departure_time__month=departure_date.month,
                 departure_time__day=departure_date.day,
+            )
+
+        if self.action == "list":
+            queryset = queryset.annotate(
+                tickets_available=
+                F("airplane__rows") * F("airplane__seats_in_rows")
+                - Count("tickets")
             )
 
         return queryset.distinct()

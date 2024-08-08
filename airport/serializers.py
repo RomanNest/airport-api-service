@@ -174,6 +174,7 @@ class FlightListSerializer(serializers.ModelSerializer):
     )
     departure_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
     arrival_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
+    tickets_available = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Flight
@@ -184,6 +185,7 @@ class FlightListSerializer(serializers.ModelSerializer):
             "airplane",
             "departure_time",
             "arrival_time",
+            "tickets_available",
         )
 
 
@@ -194,7 +196,11 @@ class FlightDetailSerializer(FlightSerializer):
         many=True,
         read_only=True,
     )
-    taken_tickets = TicketSeatSerializer(many=True, read_only=True, source="tickets")
+    taken_tickets = TicketSeatSerializer(
+        many=True,
+        read_only=True,
+        source="tickets",
+    )
 
     class Meta:
         model = Flight
