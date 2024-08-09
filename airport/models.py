@@ -1,4 +1,8 @@
+import pathlib
+import uuid
+
 from django.db import models
+from django.utils.text import slugify
 
 from airport_api_service import settings
 
@@ -78,6 +82,12 @@ class AirplaneType(models.Model):
         return self.name
 
 
+def airplane_image_path(instance: "Airplane", filename: str) -> pathlib.Path:
+    filename = (f"{slugify(instance.name)} - {uuid.uuid4()}"
+                + pathlib.Path(filename).suffix)
+    return pathlib.Path("upload/airplanes/") / pathlib.Path(filename)
+
+
 class Airplane(models.Model):
     name = models.CharField(max_length=100)
     rows = models.IntegerField()
@@ -87,6 +97,7 @@ class Airplane(models.Model):
         on_delete=models.CASCADE,
         related_name="airplanes",
     )
+    image = models.ImageField(null=True, upload_to=airplane_image_path)
 
     class Meta:
         ordering = ["name"]
