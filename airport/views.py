@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.db.models import F, Count
 from rest_framework import viewsets
+from rest_framework.authentication import TokenAuthentication
 
 from airport.models import (
     Country,
@@ -14,6 +15,7 @@ from airport.models import (
     Flight,
     Route,
 )
+from airport.permissions import IsAdminAllOrIsAuthenticatedReadOnly
 from airport.serializers import (
     CountrySerializer,
     CitySerializer,
@@ -41,10 +43,12 @@ from airport.serializers import (
 class CountryViewSet(viewsets.ModelViewSet):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
+    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
 
 class CityViewSet(viewsets.ModelViewSet):
     queryset = City.objects.all()
+    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -62,6 +66,7 @@ class CityViewSet(viewsets.ModelViewSet):
 
 class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
+    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -80,10 +85,12 @@ class AirportViewSet(viewsets.ModelViewSet):
 class AirplaneTypeViewSet(viewsets.ModelViewSet):
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
+    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
 
 class AirplaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all()
+    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -102,10 +109,12 @@ class AirplaneViewSet(viewsets.ModelViewSet):
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects
+    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -132,6 +141,7 @@ class FlightViewSet(viewsets.ModelViewSet):
         "route__destination",
         "airplane__airplane_type"
     ).prefetch_related("crew")
+    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
     @staticmethod
     def _params_to_ints(query_string):
@@ -166,6 +176,13 @@ class FlightViewSet(viewsets.ModelViewSet):
                 departure_time__day=departure_date.day,
             )
 
+        if self.action == "list":
+            queryset = queryset.annotate(
+                tickets_available=
+                F("airplane__rows") * F("airplane__seats_in_row")
+                - Count("tickets")
+            )
+
         return queryset.distinct()
 
     def get_serializer_class(self):
@@ -178,6 +195,7 @@ class FlightViewSet(viewsets.ModelViewSet):
 
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
+    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
