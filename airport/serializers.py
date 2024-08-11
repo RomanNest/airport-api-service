@@ -48,8 +48,7 @@ class AirportSerializer(serializers.ModelSerializer):
 
 class AirportListSerializer(AirportSerializer):
     closest_big_city = serializers.CharField(
-        source="closest_big_city.name",
-        read_only=True
+        source="closest_big_city.name", read_only=True
     )
 
 
@@ -135,10 +134,7 @@ class TicketSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         data = super(TicketSerializer, self).validate(attrs=attrs)
         Ticket.validate_ticket(
-            attrs["row"],
-            attrs["seat"],
-            attrs["flight"].airplane,
-            ValidationError
+            attrs["row"], attrs["seat"], attrs["flight"].airplane, ValidationError
         )
         return data
 
@@ -156,14 +152,7 @@ class TicketSeatSerializer(TicketSerializer):
 class FlightSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flight
-        fields = (
-            "id",
-            "route",
-            "airplane",
-            "departure_time",
-            "arrival_time",
-            "crew"
-        )
+        fields = ("id", "route", "airplane", "departure_time", "arrival_time", "crew")
 
 
 class FlightListSerializer(serializers.ModelSerializer):

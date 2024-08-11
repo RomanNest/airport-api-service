@@ -51,17 +51,12 @@ class Route(models.Model):
         related_name="source_routes",
     )
     destination = models.ForeignKey(
-        Airport,
-        on_delete=models.CASCADE,
-        related_name="destination_routers"
+        Airport, on_delete=models.CASCADE, related_name="destination_routers"
     )
     distance = models.IntegerField(default=0)
 
     def __str__(self):
-        return (
-            f"{self.source.name} - {self.destination.name} "
-            f"({self.distance} km.)"
-        )
+        return f"{self.source.name} - {self.destination.name} " f"({self.distance} km.)"
 
 
 class Crew(models.Model):
@@ -83,8 +78,10 @@ class AirplaneType(models.Model):
 
 
 def airplane_image_path(instance: "Airplane", filename: str) -> pathlib.Path:
-    filename = (f"{slugify(instance.name)} - {uuid.uuid4()}"
-                + pathlib.Path(filename).suffix)
+    filename = (
+        f"{slugify(instance.name)} - {uuid.uuid4()}"
+        + pathlib.Path(filename).suffix
+    )
     return pathlib.Path("upload/airplanes/") / pathlib.Path(filename)
 
 
@@ -160,10 +157,10 @@ class Ticket(models.Model):
                 raise error_to_raise(
                     {
                         ticket_attr_name: f"{ticket_attr_name} "
-                                          f"number must be "
-                                          f"in available range: "
-                                          f"(1, {airplane_attr_name}): "
-                                          f"(1, {count_attrs})"
+                        f"number must be "
+                        f"in available range: "
+                        f"(1, {airplane_attr_name}): "
+                        f"(1, {count_attrs})"
                     }
                 )
 
@@ -176,11 +173,11 @@ class Ticket(models.Model):
         )
 
     def save(
-            self,
-            force_insert=False,
-            force_update=False,
-            using=None,
-            update_fields=None,
+        self,
+        force_insert=False,
+        force_update=False,
+        using=None,
+        update_fields=None,
     ):
         self.full_clean()
         return super(Ticket, self).save(
@@ -192,16 +189,12 @@ class Ticket(models.Model):
         ordering = ["row", "seat"]
 
     def __str__(self):
-        return (
-            f"{str(self.flight)} (row: {self.row}, seat: {self.seat})"
-        )
+        return f"{str(self.flight)} (row: {self.row}, seat: {self.seat})"
 
 
 class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["-created_at"]
