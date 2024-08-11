@@ -1,8 +1,9 @@
 from datetime import datetime
 
 from django.db.models import F, Count
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, status
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -17,7 +18,6 @@ from airport.models import (
     Flight,
     Route,
 )
-from airport.permissions import IsAdminAllOrIsAuthenticatedReadOnly
 from airport.serializers import (
     CountrySerializer,
     CitySerializer,
@@ -149,11 +149,13 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
 class FlightViewSet(viewsets.ModelViewSet):
-    queryset = Flight.objects.all().select_related(
-        "route__source",
-        "route__destination",
-        "airplane__airplane_type"
-    ).prefetch_related("crew")
+    queryset = (
+        Flight.objects.all()
+        .select_related(
+            "route__source", "route__destination", "airplane__airplane_type"
+        )
+        .prefetch_related("crew")
+    )
 
     @staticmethod
     def _params_to_ints(query_string):
@@ -190,8 +192,7 @@ class FlightViewSet(viewsets.ModelViewSet):
 
         if self.action == "list":
             queryset = queryset.annotate(
-                tickets_available=
-                F("airplane__rows") * F("airplane__seats_in_row")
+                tickets_available=F("airplane__rows") * F("airplane__seats_in_row")
                 - Count("tickets")
             )
 
@@ -203,6 +204,33 @@ class FlightViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return FlightDetailSerializer
         return FlightSerializer
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+              name="airplanes",
+              type={"type": "list", "items": {"type": "number"}},
+              description="Filter by airplane id (ex. ?airplanes=2,3)",
+            ),
+            OpenApiParameter(
+                name="source",
+                type={"type": "list", "items": {"type": "number"}},
+                description="Filter by source id (ex. ?source=2,3)",
+            ),
+            OpenApiParameter(
+                name="destination",
+                type={"type": "list", "items": {"type": "number"}},
+                description="Filter by destination id (ex. ?destination=2,3)",
+            ),
+            OpenApiParameter(
+                name="data",
+                type=OpenApiTypes.DATE,
+                description="Filter by flight date (ex. ?date=2025-08-24)",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class RouteViewSet(viewsets.ModelViewSet):
