@@ -65,7 +65,15 @@ class AirplaneTypeSerializer(serializers.ModelSerializer):
 class AirplaneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Airplane
-        fields = ("id", "name", "rows", "seats_in_row", "airplane_type", "capacity")
+        fields = (
+            "id",
+            "name",
+            "rows",
+            "seats_in_row",
+            "airplane_type",
+            "capacity",
+            "image"
+        )
 
 
 class AirplaneListSerializer(AirplaneSerializer):
@@ -197,6 +205,10 @@ class FlightDetailSerializer(FlightSerializer):
         read_only=True,
         source="tickets",
     )
+    airplane_image = serializers.ImageField(
+        source="airplane.image",
+        read_only=True,
+    )
 
     class Meta:
         model = Flight
@@ -208,6 +220,7 @@ class FlightDetailSerializer(FlightSerializer):
             "arrival_time",
             "crew",
             "taken_tickets",
+            "airplane_image",
         )
 
 
