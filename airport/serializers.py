@@ -240,7 +240,8 @@ class OrderSerializer(serializers.ModelSerializer):
             tickets_data = validated_data.pop("tickets")
             order = Order.objects.create(**validated_data)
             for ticket_data in tickets_data:
-                Ticket.objects.create(order=order, **ticket_data)
+                ticket_data["order"] = order
+                Ticket.objects.create(**ticket_data)
             return order
 
 
